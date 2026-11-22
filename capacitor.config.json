@@ -1,0 +1,6 @@
+{
+  "appId": "com.zozo.farm",
+  "appName": "Zozo Farm",
+  "webDir": "dist",
+  "android": { "backgroundColor": "#1B5E20" }
+}
