@@ -1,7 +1,7 @@
 // Demo data so Zozo can see how everything works on first open.
 // Dates are relative to "today" so the charts always look current.
 import { addDays, hashPassword, today, uid } from './utils'
-import { saveImage, getImage } from './db'
+import { saveImage, getImage, deleteImage } from './db'
 import { photo } from './photos'
 
 export const DEMO_PHOTO_SRC = { ph_demo1: photo('farmers'), ph_demo2: photo('fish'), ph_demo3: photo('goats') }
@@ -18,7 +18,7 @@ export async function upgradeDemoPhotos() {
   return changed
 }
 
-export const DATA_VERSION = 1
+export const DATA_VERSION = 2
 
 export function emptyState() {
   return {
@@ -39,6 +39,41 @@ export function emptyState() {
     settings: { apiKey: '', supabaseUrl: '', supabaseKey: '', lastSync: null, notifyEnabled: false },
     seen: {},
     dirty: 0
+  }
+}
+
+const DEMO_PROJECTS = ['p_maize25', 'p_mg26', 'p_pond2', 'p_pond1']
+const DEMO_INVENTORY = ['inv1', 'inv2', 'inv3', 'inv4', 'inv5', 'inv6', 'inv7']
+const DEMO_PHOTOS = ['ph_demo1', 'ph_demo2', 'ph_demo3']
+const DEMO_CAPITAL_NOTES = ['Start-up money for the new season and goat herd.', 'Bank loan for pond 1 fingerlings and feed. 12 months.', 'Inputs for 2026/27 season.']
+const DEMO_FARM_NOTES = ['Main farm. Borehole near the goat pen. Field 1 is the big maize field by the road.', 'Two tilapia ponds fed by the stream. Check pump fuel weekly.']
+
+// Clean start for real use: logins and the two farms, but no sample figures.
+export async function buildStarter() {
+  const s = await buildSeed()
+  for (const id of DEMO_PHOTOS) await deleteImage(id).catch(() => {})
+  return stripDemoRecords(s)
+}
+
+// Removes the sample projects, money records, stock, tasks, visits, photos and activity
+// that came with the demo, and keeps anything the user entered themselves.
+export function stripDemoRecords(s) {
+  const owner = (s.users || []).find((u) => u.id === 'u_owner')
+  const seedTs = Number(owner?.createdAt) || 0
+  const isSeedTime = (x) => seedTs && Number(x.createdAt) > 0 && Number(x.createdAt) <= seedTs + 60000
+  return {
+    ...s,
+    projects: (s.projects || []).filter((x) => !DEMO_PROJECTS.includes(x.id)),
+    sales: (s.sales || []).filter((x) => !isSeedTime(x)),
+    expenses: (s.expenses || []).filter((x) => !isSeedTime(x)),
+    investments: (s.investments || []).filter((x) => !(x.createdAt == null && DEMO_CAPITAL_NOTES.includes(x.note))),
+    tasks: (s.tasks || []).filter((x) => !isSeedTime(x)),
+    visits: (s.visits || []).filter((x) => !isSeedTime(x)),
+    inventory: (s.inventory || []).filter((x) => !DEMO_INVENTORY.includes(x.id)),
+    photos: (s.photos || []).filter((x) => !DEMO_PHOTOS.includes(x.id)),
+    activity: (s.activity || []).filter((a) => !seedTs || new Date(a.ts).getTime() > seedTs),
+    farms: (s.farms || []).map((f) => (DEMO_FARM_NOTES.includes(f.notes) ? { ...f, notes: '' } : f)),
+    chats: {}
   }
 }
 
