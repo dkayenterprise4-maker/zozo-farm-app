@@ -48,7 +48,7 @@ export default function ProjectForm({ open, onClose, farmId, project, onSaved })
               <div className="flex flex-wrap gap-2">
                 {PRODUCTS.filter((p) => p.group === g).map((p) => (
                   <button type="button" key={p.id} onClick={() => toggle(p.id)} className={clsx('rounded-xl border-2 px-3 py-2 text-sm font-semibold flex items-center gap-1', f.products.includes(p.id) ? 'border-farm bg-farm-pale text-farm' : 'border-gray-200 bg-white')}>
-                    <span className="text-lg">{p.icon}</span>{p.name}
+                    {p.name}
                   </button>
                 ))}
               </div>

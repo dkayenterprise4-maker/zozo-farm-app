@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Camera, Search, X, ImagePlus, Loader2 } from 'lucide-react'
+import { ArrowLeft, Camera, Search, X, ImagePlus, Loader2, Inbox } from 'lucide-react'
+import { farmPhoto, productPhoto } from '../lib/photos'
 import { getImage, compressImage } from '../lib/db'
 import { PERIODS, clsx, fmtDate } from '../lib/utils'
 
@@ -19,12 +20,12 @@ export function PageHeader({ title, subtitle, back = true, right, onBack }) {
   return (
     <div className="flex items-center gap-2 mb-4">
       {back && (
-        <button onClick={() => (onBack ? onBack() : nav(-1))} className="h-11 w-11 shrink-0 rounded-xl bg-white border border-gray-200 flex items-center justify-center active:scale-95" aria-label="Back">
+        <button onClick={() => (onBack ? onBack() : nav(-1))} className="h-11 w-11 shrink-0 rounded-lg bg-white border border-stone-200 flex items-center justify-center" aria-label="Back">
           <ArrowLeft size={22} />
         </button>
       )}
       <div className="flex-1 min-w-0">
-        <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 truncate">{title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{title}</h1>
         {subtitle && <p className="text-sm text-gray-500 truncate">{subtitle}</p>}
       </div>
       {right}
@@ -46,7 +47,7 @@ export function Modal({ open, onClose, title, children, wide }) {
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}>
-      <div className={clsx('bg-page w-full max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl animate-pop', wide ? 'sm:max-w-2xl' : 'sm:max-w-lg')}>
+      <div className={clsx('bg-page w-full max-h-[92vh] overflow-y-auto rounded-t-xl sm:rounded-xl animate-pop', wide ? 'sm:max-w-2xl' : 'sm:max-w-lg')}>
         <div className="sticky top-0 z-10 flex items-center justify-between bg-page/95 backdrop-blur px-4 pt-4 pb-2">
           <h2 className="text-lg font-bold">{title}</h2>
           <button onClick={onClose} className="h-10 w-10 rounded-full bg-white border flex items-center justify-center" aria-label="Close">
@@ -99,31 +100,35 @@ export function Field({ label, error, children, hint }) {
   )
 }
 
-export function Empty({ icon = '🌱', title, text, action }) {
+export function Empty({ icon, title, text, action, photo }) {
+  const Icon = typeof icon === 'function' || (icon && icon.$$typeof) ? icon : Inbox
   return (
-    <div className="card p-8 text-center">
-      <div className="text-5xl mb-3">{icon}</div>
-      <h3 className="font-bold text-lg text-gray-800">{title}</h3>
-      {text && <p className="text-gray-500 mt-1 mb-4">{text}</p>}
-      {action}
+    <div className="card overflow-hidden text-center">
+      {photo && <img src={photo} alt="" className="w-full h-32 object-cover" loading="lazy" />}
+      <div className="p-6">
+        {!photo && <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center"><Icon size={24} /></div>}
+        <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
+        {text && <p className="text-gray-500 mt-1 mb-4">{text}</p>}
+        {action}
+      </div>
     </div>
   )
 }
 
 export function Stat({ label, value, tone = 'default', sub, icon }) {
   const tones = {
-    default: 'bg-white text-gray-900',
-    green: 'bg-farm text-white',
-    light: 'bg-farm-light text-white',
-    earth: 'bg-earth text-white',
-    red: 'bg-red-600 text-white',
-    pale: 'bg-farm-pale text-farm'
+    default: 'text-gray-900 border-t-stone-300',
+    green: 'text-farm border-t-farm',
+    light: 'text-farm border-t-farm-light',
+    earth: 'text-earth border-t-earth',
+    red: 'text-red-700 border-t-red-600',
+    pale: 'text-gray-900 border-t-farm-light'
   }
   return (
-    <div className={clsx('rounded-2xl p-3 sm:p-4 shadow-sm', tones[tone])}>
-      <div className="text-xs sm:text-sm opacity-80 flex items-center gap-1">{icon}{label}</div>
-      <div className="text-lg sm:text-2xl font-extrabold mt-0.5 break-words">{value}</div>
-      {sub && <div className="text-xs opacity-80 mt-0.5">{sub}</div>}
+    <div className={clsx('bg-white rounded-lg border border-stone-200 border-t-[3px] p-3 sm:p-4', tones[tone])}>
+      <div className="text-xs sm:text-sm text-gray-500 flex items-center gap-1">{icon}{label}</div>
+      <div className="text-lg sm:text-2xl font-bold mt-0.5 break-words tabular-nums">{value}</div>
+      {sub && <div className="text-xs text-gray-500 mt-0.5">{sub}</div>}
     </div>
   )
 }
@@ -185,35 +190,16 @@ export function Img({ id, className, alt = '', fallback = null, onClick }) {
   return <img src={src} alt={alt} className={className} onClick={onClick} loading="lazy" />
 }
 
-// Illustrated cover for farms without a photo
-export function FarmCover({ farm, className }) {
-  const fish = /fish/i.test(farm.type)
-  const live = /livestock|poultry/i.test(farm.type)
-  const sky = fish ? '#B3E5FC' : '#C8E6C9'
-  return (
-    <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" className={className}>
-      <rect width="400" height="200" fill={sky} />
-      <circle cx="330" cy="50" r="26" fill="#FFD54F" />
-      <path d="M0 120 Q100 80 200 115 T400 105 V200 H0Z" fill="#81C784" />
-      {fish ? (
-        <>
-          <ellipse cx="200" cy="160" rx="150" ry="32" fill="#4FC3F7" />
-          <text x="170" y="170" fontSize="30">🐟</text>
-          <text x="230" y="160" fontSize="22">🐟</text>
-        </>
-      ) : (
-        <>
-          <path d="M0 150 Q200 120 400 150 V200 H0Z" fill="#8D6E63" />
-          {[...Array(9)].map((_, i) => (
-            <text key={i} x={20 + i * 44} y={150 + (i % 2) * 6} fontSize="26">{live ? (i % 3 ? '🌾' : '🐐') : i % 2 ? '🌽' : '🌱'}</text>
-          ))}
-        </>
-      )}
-      <rect x="40" y="70" width="46" height="36" fill="#795548" />
-      <path d="M34 72 L63 48 L92 72Z" fill="#5D4037" />
-    </svg>
-  )
+// Real photo cover for farms without their own photo (chosen by farm type)
+export function FarmCover({ farm, className, small }) {
+  return <img src={farmPhoto(farm, small)} alt="" className={clsx('object-cover', className)} loading="lazy" />
 }
+
+export function ProductThumb({ ids, className = 'h-12 w-12' }) {
+  return <img src={productPhoto(ids, true)} alt="" className={clsx('rounded-md object-cover shrink-0', className)} loading="lazy" />
+}
+
+export const CatDot = ({ color }) => <span className="inline-block h-2.5 w-2.5 rounded-full mr-1.5 align-middle" style={{ background: color || '#BDBDBD' }} />
 
 export function FarmImage({ farm, className }) {
   return <Img id={farm.photoId} className={clsx('object-cover', className)} alt={farm.name} fallback={<FarmCover farm={farm} className={className} />} />
@@ -245,7 +231,7 @@ export function PhotoPicker({ value, onChange, label = 'Add Photo' }) {
           </button>
         </div>
       ) : (
-        <button type="button" onClick={() => ref.current.click()} className="w-full h-28 rounded-xl border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center text-gray-500 gap-1 active:bg-gray-50">
+        <button type="button" onClick={() => ref.current.click()} className="w-full h-28 rounded-lg border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center text-gray-500 gap-1 active:bg-gray-50">
           {busy ? <Loader2 className="animate-spin" /> : <div className="flex gap-2"><Camera /><ImagePlus /></div>}
           <span className="text-sm font-medium">{label}</span>
         </button>

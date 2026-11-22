@@ -4,11 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        farm: { DEFAULT: '#1B5E20', dark: '#0F3D13', light: '#4CAF50', pale: '#E8F5E9' },
+        farm: { DEFAULT: '#2E5A27', dark: '#1F3F1A', light: '#5B8C3E', pale: '#EEF3EA' },
         earth: { DEFAULT: '#795548', light: '#A1887F', pale: '#EFEBE9' },
-        page: '#F4F5F0'
+        page: '#F6F5F1'
       },
-      fontFamily: { sans: ['Inter', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'] }
+      fontFamily: { sans: ['Source Sans 3', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'] }
     }
   },
   plugins: []

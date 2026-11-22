@@ -170,18 +170,18 @@ export function insights(state, opts = {}) {
   }
   if (st.totalSales > 0) {
     if (st.margin < 0)
-      out.push({ tone: 'bad', icon: '⚠️', title: 'You are making a loss', text: `Expenses are higher than sales by K ${Math.abs(st.net).toLocaleString()}. Check costs that are not bringing income.` })
+      out.push({ tone: 'bad', icon: '', title: 'You are making a loss', text: `Expenses are higher than sales by K ${Math.abs(st.net).toLocaleString()}. Check costs that are not bringing income.` })
     else if (st.margin < 15)
-      out.push({ tone: 'warn', icon: '📉', title: `Low profit margin (${st.margin.toFixed(1)}%)`, text: 'Look for better prices: sell in bulk, sell direct to buyers, or wait for better market days.' })
+      out.push({ tone: 'warn', icon: '', title: `Low profit margin (${st.margin.toFixed(1)}%)`, text: 'Look for better prices: sell in bulk, sell direct to buyers, or wait for better market days.' })
     else
-      out.push({ tone: 'good', icon: '✅', title: `Healthy margin of ${st.margin.toFixed(1)}%`, text: 'Keep recording every sale and expense so you can see what works best.' })
+      out.push({ tone: 'good', icon: '', title: `Healthy margin of ${st.margin.toFixed(1)}%`, text: 'Keep recording every sale and expense so you can see what works best.' })
   } else if (st.totalExpenses > 0) {
-    out.push({ tone: 'info', icon: '🌱', title: 'No sales yet in this period', text: 'You are investing in the season. Plan your market early so you get a good price at harvest.' })
+    out.push({ tone: 'info', icon: '', title: 'No sales yet in this period', text: 'You are investing in the season. Plan your market early so you get a good price at harvest.' })
   }
   const top = st.salesByItem[0]
-  if (top) out.push({ tone: 'good', icon: '💰', title: `Best seller: ${top.item}`, text: `${top.item} brought in K ${top.amount.toLocaleString()} (${st.totalSales ? ((top.amount / st.totalSales) * 100).toFixed(0) : 0}% of sales).` })
+  if (top) out.push({ tone: 'good', icon: '', title: `Best seller: ${top.item}`, text: `${top.item} brought in K ${top.amount.toLocaleString()} (${st.totalSales ? ((top.amount / st.totalSales) * 100).toFixed(0) : 0}% of sales).` })
   if (st.totalInvestment > 0)
-    out.push({ tone: 'info', icon: '🏦', title: `Capital injected: K ${st.totalInvestment.toLocaleString()}`, text: st.net > 0 ? `Profit has paid back ${Math.min(100, (st.net / st.totalInvestment) * 100).toFixed(0)}% of the money put in.` : 'Profit has not yet started paying back the money put in.' })
+    out.push({ tone: 'info', icon: '', title: `Capital injected: K ${st.totalInvestment.toLocaleString()}`, text: st.net > 0 ? `Profit has paid back ${Math.min(100, (st.net / st.totalInvestment) * 100).toFixed(0)}% of the money put in.` : 'Profit has not yet started paying back the money put in.' })
   return out
 }
 

@@ -1,7 +1,7 @@
 // App-wide state: data, current user, permissions, toasts, online status.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { loadState, saveState, flush, clearAll, saveImage, deleteImage } from './db'
-import { buildSeed, emptyState, DATA_VERSION } from './seed'
+import { buildSeed, emptyState, DATA_VERSION, upgradeDemoPhotos } from './seed'
 import { uid, hashPassword, checkPassword, money, today } from './utils'
 import { syncNow, isSyncConfigured } from './sync'
 
@@ -25,6 +25,11 @@ export function StoreProvider({ children }) {
     ;(async () => {
       let s = await loadState()
       if (!s || !s.version) s = await buildSeed()
+      else if (await upgradeDemoPhotos()) {
+        const fresh = await buildSeed()
+        const meta = Object.fromEntries(fresh.photos.map((p) => [p.id, p]))
+        s = { ...s, photos: (s.photos || []).map((p) => (meta[p.id] ? { ...p, kind: meta[p.id].kind, farmId: meta[p.id].farmId, projectId: meta[p.id].projectId, caption: meta[p.id].caption, symptoms: meta[p.id].symptoms, suggestion: meta[p.id].suggestion } : p)) }
+      }
       s = { ...emptyState(), ...s, settings: { ...emptyState().settings, ...(s.settings || {}) }, version: DATA_VERSION }
       setState(s)
     })()

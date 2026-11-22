@@ -37,7 +37,7 @@ export default function Gallery() {
         <Chips options={[{ id: 'all', label: 'All' }, ...PHOTO_KINDS]} value={kind} onChange={setKind} />
       </div>
       {list.length === 0 ? (
-        <Empty icon="📷" title="No photos yet" text="Take photos of your farm, receipts, visits and problems like sick plants or broken fences. For problems, you get suggestions on the cause and what to do." action={<button className="btn-primary" onClick={() => setAdding(true)}><Plus size={18} /> Add Photo</button>} />
+        <Empty icon="" title="No photos yet" text="Take photos of your farm, receipts, visits and problems like sick plants or broken fences. For problems, you get suggestions on the cause and what to do." action={<button className="btn-primary" onClick={() => setAdding(true)}><Plus size={18} /> Add Photo</button>} />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {list.map((p) => (

@@ -4,8 +4,8 @@ import { Pencil, Trash2, MapPin, ShoppingCart, Receipt, Landmark, Camera, Folder
 import { useStore } from '../lib/store'
 import { statement, projection, bestProject, insights } from '../lib/finance'
 import { money, periodRange, pct, clsx, timeAgo, fmtDate, today } from '../lib/utils'
-import { productIcons } from '../lib/constants'
-import { FarmImage, PeriodFilter, Stat, useConfirm, Badge, Empty } from '../components/ui'
+import { FarmImage, PeriodFilter, Stat, useConfirm, Badge, Empty, ProductThumb, CatDot } from '../components/ui'
+import { photo } from '../lib/photos'
 import { IncomeExpenseChart, ProfitTrendChart } from '../components/Charts'
 import FarmForm from '../components/FarmForm'
 import Weather from '../components/Weather'
@@ -51,10 +51,10 @@ export default function FarmDashboard() {
   }
 
   const actions = [
-    { to: `/add/sale?${q}`, label: 'Add Sale', icon: ShoppingCart, cls: 'bg-farm-light text-white' },
+    { to: `/add/sale?${q}`, label: 'Add Sale', icon: ShoppingCart, cls: 'bg-farm text-white' },
     { to: `/add/expense?${q}`, label: 'Add Expense', icon: Receipt, cls: 'bg-earth text-white' },
-    ...(isOwner ? [{ to: `/add/investment?${q}`, label: 'Add Capital', icon: Landmark, cls: 'bg-farm text-white' }] : []),
-    { to: `/gallery?${q}&add=1`, label: 'Photo / Note', icon: Camera, cls: 'bg-white text-farm border-2 border-farm' }
+    ...(isOwner ? [{ to: `/add/investment?${q}`, label: 'Add Capital', icon: Landmark, cls: 'bg-white text-farm border border-stone-300' }] : []),
+    { to: `/gallery?${q}&add=1`, label: 'Photo / Note', icon: Camera, cls: 'bg-white text-farm border border-stone-300' }
   ]
   const menu = [
     { to: `/farm/${farmId}/projects`, label: 'Projects', icon: FolderKanban, count: projects.length },
@@ -70,10 +70,10 @@ export default function FarmDashboard() {
   return (
     <div>
       {/* Banner */}
-      <div className="relative -mx-4 -mt-4 mb-4 h-44 sm:h-56 sm:mx-0 sm:rounded-2xl overflow-hidden">
+      <div className="relative -mx-4 -mt-4 mb-4 h-44 sm:h-56 sm:mx-0 sm:rounded-lg overflow-hidden">
         <FarmImage farm={farm} className="w-full h-full" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-        <button onClick={() => nav('/')} className="absolute top-3 left-3 rounded-full bg-black/40 text-white px-3 py-1.5 text-sm font-semibold">← My Farms</button>
+        <button onClick={() => nav('/')} className="absolute top-3 left-3 rounded-full bg-black/40 text-white px-3 py-1.5 text-sm font-semibold">‹ My Farms</button>
         {isOwner && (
           <div className="absolute top-3 right-3 flex gap-2">
             <button onClick={() => setEdit(true)} className="h-10 w-10 rounded-full bg-white/90 flex items-center justify-center" aria-label="Edit farm"><Pencil size={18} /></button>
@@ -82,7 +82,7 @@ export default function FarmDashboard() {
         )}
         <div className="absolute bottom-3 left-4 right-4 text-white">
           <Badge tone="green">{farm.type}</Badge>
-          <h1 className="text-2xl font-extrabold leading-tight mt-1">{farm.name}</h1>
+          <h1 className="text-2xl font-bold leading-tight mt-1">{farm.name}</h1>
           <p className="text-sm opacity-90 flex items-center gap-3"><span className="flex items-center gap-1"><MapPin size={14} />{farm.location}{farm.district ? `, ${farm.district}` : ''}</span>{farm.size ? <span className="flex items-center gap-1"><Ruler size={14} />{farm.size} {farm.sizeUnit}</span> : null}</p>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function FarmDashboard() {
       {/* Quick actions */}
       <div className={clsx('grid gap-2 mb-5', actions.length === 4 ? 'grid-cols-4' : 'grid-cols-3')}>
         {actions.map((a) => (
-          <Link key={a.label} to={a.to} className={clsx('rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center gap-1 min-h-[84px] shadow-sm font-semibold text-xs sm:text-sm text-center active:scale-95', a.cls)}>
+          <Link key={a.label} to={a.to} className={clsx('rounded-lg p-2 sm:p-3 flex flex-col items-center justify-center gap-1 min-h-[84px] font-semibold text-xs sm:text-sm text-center', a.cls)}>
             <a.icon size={26} /> {a.label}
           </Link>
         ))}
@@ -118,7 +118,7 @@ export default function FarmDashboard() {
             </div>
           </div>
 
-          <div className="card p-4 mb-4 bg-gradient-to-br from-farm to-farm-dark text-white">
+          <div className="card p-4 mb-4 bg-farm text-white border-farm">
             <div className="flex items-center gap-2 text-green-200 text-sm font-semibold"><TrendingUp size={18} /> PROJECTION</div>
             <p className="text-lg mt-1">At current rate, <b>{farm.name.split(' - ')[0]}</b> is projected to {proj.projected >= 0 ? 'make' : 'lose'} <b className="text-2xl">{money(Math.abs(proj.projected), { decimals: 0 })}</b> by {proj.target}.</p>
             <p className="text-sm text-green-200 mt-1">Profit so far this year: {money(proj.ytd, { decimals: 0 })} · recent average {money(proj.avgMonthly, { decimals: 0 })}/month</p>
@@ -129,7 +129,7 @@ export default function FarmDashboard() {
               <h3 className="section-title mb-3">Top 3 Expenses</h3>
               {st.byCategory.length === 0 ? <p className="text-gray-500">No expenses in this period.</p> : st.byCategory.slice(0, 3).map((c, i) => (
                 <div key={c.category} className="mb-3">
-                  <div className="flex justify-between text-sm font-semibold"><span>{i + 1}. {c.icon} {c.category}</span><span>{money(c.amount, { decimals: 0 })}</span></div>
+                  <div className="flex justify-between text-sm font-semibold"><span><CatDot color={c.color} />{c.category}</span><span>{money(c.amount, { decimals: 0 })}</span></div>
                   <div className="h-2.5 bg-gray-100 rounded-full mt-1"><div className="h-full rounded-full" style={{ width: `${c.share}%`, background: c.color }} /></div>
                   <div className="text-xs text-gray-500 mt-0.5">{c.share.toFixed(0)}% of expenses</div>
                 </div>
@@ -138,11 +138,10 @@ export default function FarmDashboard() {
             <div className="card p-4">
               <h3 className="section-title mb-3 flex items-center gap-2"><Trophy size={20} className="text-amber-500" /> Best Performing Project</h3>
               {best ? (
-                <Link to={`/project/${best.project.id}`} className="block rounded-xl bg-farm-pale p-3">
-                  <div className="text-2xl">{productIcons(best.project.products)}</div>
-                  <div className="font-bold">{best.project.name}</div>
+                <Link to={`/project/${best.project.id}`} className="flex gap-3 items-center rounded-lg bg-farm-pale p-3">
+                                    <ProductThumb ids={best.project.products} className="h-16 w-16" /><div className="min-w-0"><div className="font-bold">{best.project.name}</div>
                   <div className="text-sm text-gray-600">Sales {money(best.sales, { decimals: 0 })} · Costs {money(best.expenses, { decimals: 0 })}</div>
-                  <div className={clsx('text-xl font-extrabold', best.net >= 0 ? 'text-farm' : 'text-red-600')}>{money(best.net, { decimals: 0 })}</div>
+                  <div className={clsx('text-xl font-bold', best.net >= 0 ? 'text-farm' : 'text-red-600')}>{money(best.net, { decimals: 0 })}</div></div>
                 </Link>
               ) : <p className="text-gray-500">No project activity in this period.</p>}
             </div>
@@ -154,7 +153,7 @@ export default function FarmDashboard() {
               <div className="grid sm:grid-cols-2 gap-3">
                 {ins.map((i, k) => (
                   <div key={k} className={clsx('card p-4 border-l-4', i.tone === 'bad' ? 'border-l-red-500' : i.tone === 'warn' ? 'border-l-amber-500' : i.tone === 'good' ? 'border-l-farm-light' : 'border-l-blue-400')}>
-                    <div className="font-bold">{i.icon} {i.title}</div>
+                    <div className="font-semibold">{i.title}</div>
                     <p className="text-sm text-gray-600 mt-1">{i.text}</p>
                   </div>
                 ))}
@@ -167,7 +166,7 @@ export default function FarmDashboard() {
       {/* Farm menu */}
       <div className="grid grid-cols-4 gap-2 mb-5">
         {menu.map((m) => (
-          <Link key={m.label} to={m.to} className="relative card p-2 sm:p-3 flex flex-col items-center gap-1 text-xs sm:text-sm font-semibold text-gray-700 active:scale-95 min-h-[76px] justify-center">
+          <Link key={m.label} to={m.to} className="relative card p-2 sm:p-3 flex flex-col items-center gap-1 text-xs sm:text-sm font-semibold text-gray-700 min-h-[76px] justify-center">
             <m.icon size={24} className="text-farm" /> {m.label}
             {m.count > 0 && <span className="absolute top-1 right-1 text-[10px] bg-farm-pale text-farm rounded-full px-1.5 font-bold">{m.count}</span>}
             {m.alert > 0 && <span className="absolute top-1 right-1 text-[10px] bg-red-500 text-white rounded-full px-1.5 font-bold">{m.alert}</span>}
@@ -181,19 +180,19 @@ export default function FarmDashboard() {
         <Link to={`/farm/${farmId}/projects`} className="text-farm font-semibold text-sm flex items-center">See all <ChevronRight size={16} /></Link>
       </div>
       {projects.length === 0 ? (
-        <Empty icon="🌱" title="No projects yet" text="Create a project like Maize, Goats or Tilapia to track its costs and profit." action={isOwner && <Link to={`/farm/${farmId}/projects?new=1`} className="btn-primary">Create Project</Link>} />
+        <Empty photo={photo('farm_maize', true)} title="No projects yet" text="Create a project like Maize, Goats or Tilapia to track its costs and profit." action={isOwner && <Link to={`/farm/${farmId}/projects?new=1`} className="btn-primary">Create Project</Link>} />
       ) : (
         <div className="space-y-2 mb-5">
           {projects.slice(0, 4).map((p) => {
             const ps = statement(state, { projectId: p.id })
             return (
               <Link key={p.id} to={`/project/${p.id}`} className="card p-3 flex items-center gap-3">
-                <div className="text-2xl w-12 text-center">{productIcons(p.products)}</div>
+                <ProductThumb ids={p.products} />
                 <div className="flex-1 min-w-0">
                   <div className="font-bold truncate">{p.name}</div>
                   <div className="text-xs text-gray-500">{fmtDate(p.startDate)} → {fmtDate(p.harvestDate)} · <Badge tone={p.status === 'Active' ? 'green' : p.status === 'Harvested' ? 'orange' : 'gray'}>{p.status}</Badge></div>
                 </div>
-                {isOwner && <div className={clsx('font-extrabold text-right', ps.net >= 0 ? 'text-farm' : 'text-red-600')}>{money(ps.net, { decimals: 0 })}</div>}
+                {isOwner && <div className={clsx('font-bold text-right', ps.net >= 0 ? 'text-farm' : 'text-red-600')}>{money(ps.net, { decimals: 0 })}</div>}
                 <ChevronRight size={18} className="text-gray-400" />
               </Link>
             )
@@ -208,13 +207,13 @@ export default function FarmDashboard() {
             <h3 className="section-title">Open Tasks</h3>
             <Link to={`/tasks?${q}`} className="text-farm font-semibold text-sm">All tasks</Link>
           </div>
-          {tasks.length === 0 ? <p className="text-gray-500">No open tasks 🎉</p> : tasks.slice(0, 4).map((t) => (
+          {tasks.length === 0 ? <p className="text-gray-500">No open tasks.</p> : tasks.slice(0, 4).map((t) => (
             <div key={t.id} className="flex items-center justify-between py-2 border-b last:border-0">
               <span className="font-medium">{t.title}</span>
               <span className={clsx('text-xs font-bold whitespace-nowrap ml-2', t.dueDate < today() ? 'text-red-600' : t.dueDate === today() ? 'text-orange-600' : 'text-gray-500')}>{t.dueDate < today() ? 'Overdue' : fmtDate(t.dueDate)}</span>
             </div>
           ))}
-          {lowStock.length > 0 && <p className="mt-3 text-sm text-red-600 font-semibold">📦 Low stock: {lowStock.map((i) => i.name).join(', ')}</p>}
+          {lowStock.length > 0 && <p className="mt-3 text-sm text-red-600 font-semibold">Low stock: {lowStock.map((i) => i.name).join(', ')}</p>}
         </div>
       </div>
 

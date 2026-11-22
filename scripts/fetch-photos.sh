@@ -9,8 +9,8 @@ while IFS='|' read -r key file artist license; do
   [ -z "$key" ] && continue
   enc=$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$file")
   curl -fsSL -A "$UA" -o "/tmp/$key.jpg" "https://commons.wikimedia.org/wiki/Special:FilePath/$enc?width=1400"
-  convert "/tmp/$key.jpg" -auto-orient -strip -resize '1100x1100>' -quality 68 "public/photos/$key.webp"
-  convert "/tmp/$key.jpg" -auto-orient -strip -resize '480x480^' -gravity center -extent 480x360 -quality 62 "public/photos/${key}-sm.webp"
+  convert "/tmp/$key.jpg" -auto-orient -strip -resize '800x800>' -quality 55 "public/photos/$key.webp"
+  convert "/tmp/$key.jpg" -auto-orient -strip -resize '480x480^' -gravity center -extent 480x360 -quality 55 "public/photos/${key}-sm.webp"
   sleep 1
 done < scripts/photos.txt
 ls -la public/photos

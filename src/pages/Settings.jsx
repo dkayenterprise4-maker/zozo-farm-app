@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { User, Lock, KeyRound, Download, Upload, Trash2, RotateCcw, Sparkles, Cloud, Bell, LogOut, Loader2 } from 'lucide-react'
+import { PHOTO_CREDITS } from '../lib/photos'
 import { useStore } from '../lib/store'
 import { PageHeader, Field, useConfirm } from '../components/ui'
 import { exportAllData } from '../lib/exports'
@@ -121,7 +122,7 @@ export default function Settings() {
 
       <Section icon={Bell} title="Notifications">
         <p className="text-sm text-gray-600 mb-3">In-app alerts (bell icon) always work. You can also allow phone notifications for overdue tasks and low stock.</p>
-        <button onClick={enableNotify} className="btn-outline w-full">{state.settings.notifyEnabled ? '✅ Phone notifications are on' : 'Turn on phone notifications'}</button>
+        <button onClick={enableNotify} className="btn-outline w-full">{state.settings.notifyEnabled ? 'Phone notifications are on' : 'Turn on phone notifications'}</button>
       </Section>
 
       {isOwner && (
@@ -165,7 +166,12 @@ export default function Settings() {
       )}
 
       <button className="btn-ghost w-full text-red-600 mb-4" onClick={s.logout}><LogOut size={18} /> Log Out</button>
-      <p className="text-center text-xs text-gray-400">Zozo Farm App v1.0 · Your Farms, In Your Pocket</p>
+      <details className="mb-4 text-xs text-gray-500">
+        <summary className="cursor-pointer font-semibold">Photo credits</summary>
+        <p className="mt-2">Photos from Wikimedia Commons, used under their free licences:</p>
+        <ul className="mt-1 space-y-0.5">{PHOTO_CREDITS.map(([k, t, a, l]) => <li key={k}>{t}, by {a} ({l})</li>)}</ul>
+      </details>
+      <p className="text-center text-xs text-gray-400">Zozo Farm App v1.1</p>
     </div>
   )
 }

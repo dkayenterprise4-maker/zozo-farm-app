@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { RefreshCw, CloudRain } from 'lucide-react'
+import { RefreshCw, CloudRain, Sun, CloudSun, Cloud, CloudFog, CloudDrizzle, CloudLightning } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { fetchWeather, seasonalEstimate, plantingAdvice, codeInfo } from '../lib/weather'
 import { fmtDateTime, parseISO } from '../lib/utils'
@@ -45,9 +45,9 @@ export default function Weather({ farm }) {
         {w.days.map((d) => {
           const [icon, label] = codeInfo(d.code)
           return (
-            <div key={d.date} className="rounded-xl bg-blue-50 p-1.5 sm:p-2 text-center" title={label}>
+            <div key={d.date} className="rounded-md bg-stone-50 border border-stone-200 p-1.5 sm:p-2 text-center" title={label}>
               <div className="text-xs font-bold text-gray-600">{DAY[parseISO(d.date).getDay()]}</div>
-              <div className="text-2xl my-1">{icon}</div>
+              <div className="my-1 flex justify-center text-stone-600"><WIcon code={d.code} /></div>
               <div className="text-xs font-semibold">{d.max}° / {d.min}°</div>
               <div className="text-[11px] text-blue-700 font-medium">{d.rain > 0 ? `${d.rain}mm` : 'dry'}</div>
               {d.prob != null && <div className="text-[10px] text-gray-500">{d.prob}%</div>}
@@ -56,7 +56,7 @@ export default function Weather({ farm }) {
         })}
       </div>
       <ul className="mt-3 space-y-1 text-sm text-gray-700">
-        {tips.map((t, i) => <li key={i}>🌱 {t}</li>)}
+        {tips.map((t, i) => <li key={i} className="pl-3 border-l-2 border-farm-light">{t}</li>)}
       </ul>
       <p className="text-xs text-gray-400 mt-2">
         {data ? `${farm.location} · updated ${fmtDateTime(data.fetchedAt)}${!online ? ' (offline - saved forecast)' : ''}` : 'Seasonal estimate (offline). Connect to internet for the live forecast.'}
@@ -64,4 +64,9 @@ export default function Weather({ farm }) {
       </p>
     </div>
   )
+}
+
+function WIcon({ code }) {
+  const I = code === 0 ? Sun : code <= 2 ? CloudSun : code === 3 ? Cloud : code <= 48 ? CloudFog : code <= 55 ? CloudDrizzle : code >= 95 ? CloudLightning : CloudRain
+  return <I size={24} strokeWidth={1.75} />
 }

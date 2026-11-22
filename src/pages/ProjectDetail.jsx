@@ -4,9 +4,10 @@ import { Pencil, Trash2, ShoppingCart, Receipt, Camera, FileBarChart, AlertTrian
 import { useStore } from '../lib/store'
 import { statement } from '../lib/finance'
 import { money, fmtDate, pct, clsx, daysBetween, today } from '../lib/utils'
-import { productIcons, productNames, PRODUCT_MAP, PROJECT_STATUSES, isCrop } from '../lib/constants'
+import { productPhoto } from '../lib/photos'
+import { productNames, PRODUCT_MAP, PROJECT_STATUSES, isCrop } from '../lib/constants'
 import { rotationCheck, fieldHistory, nextCropSuggestion, fishFeeding, FISH_REMINDERS, LIVESTOCK_GUIDE, reminderTasks, projectKinds } from '../lib/guidance'
-import { PageHeader, Stat, Chips, useConfirm, Badge, Img, Empty } from '../components/ui'
+import { PageHeader, Stat, Chips, useConfirm, Badge, Img, Empty, CatDot } from '../components/ui'
 import { IncomeExpenseChart } from '../components/Charts'
 import ProjectForm from '../components/ProjectForm'
 import TxList from '../components/TxList'
@@ -46,9 +47,10 @@ export default function ProjectDetail() {
         </div>
       )} />
 
-      <div className="card p-4 mb-4">
+      <div className="card overflow-hidden mb-4">
+        <img src={productPhoto(p.products)} alt={productNames(p.products)} className="w-full h-36 sm:h-48 object-cover" />
+        <div className="p-4">
         <div className="flex items-center gap-3">
-          <div className="text-4xl">{productIcons(p.products)}</div>
           <div className="flex-1">
             <div className="font-semibold">{productNames(p.products)}</div>
             <div className="text-sm text-gray-500">{fmtDate(p.startDate)} → {fmtDate(p.harvestDate)}</div>
@@ -66,6 +68,7 @@ export default function ProjectDetail() {
           </div>
         )}
         {p.notes && <p className="text-sm text-gray-600 mt-3">{p.notes}</p>}
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mb-4">
@@ -97,7 +100,7 @@ export default function ProjectDetail() {
             <div className="card p-4 mb-4">
               <h3 className="section-title mb-2">Costs by category</h3>
               {st.byCategory.map((c) => (
-                <div key={c.category} className="flex justify-between py-1.5 border-b last:border-0 text-sm"><span>{c.icon} {c.category}</span><span className="font-semibold">{money(c.amount)} <span className="text-gray-400">({c.share.toFixed(0)}%)</span></span></div>
+                <div key={c.category} className="flex justify-between py-1.5 border-b last:border-0 text-sm"><span><CatDot color={c.color} />{c.category}</span><span className="font-semibold">{money(c.amount)} <span className="text-gray-400">({c.share.toFixed(0)}%)</span></span></div>
               ))}
             </div>
           )}
@@ -114,7 +117,7 @@ export default function ProjectDetail() {
       {tab === 'guide' && <Guidance project={p} />}
 
       {tab === 'photos' && (
-        photos.length === 0 ? <Empty icon="📷" title="No photos for this project" text="Take photos to track growth and problems." action={<Link to={`/gallery?${q}&add=1`} className="btn-primary">Add Photo</Link>} /> : (
+        photos.length === 0 ? <Empty icon="" title="No photos for this project" text="Take photos to track growth and problems." action={<Link to={`/gallery?${q}&add=1`} className="btn-primary">Add Photo</Link>} /> : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {photos.map((ph) => (
               <Link to={`/gallery?farm=${farm.id}&project=${p.id}`} key={ph.id} className="card overflow-hidden">
@@ -149,7 +152,7 @@ function Guidance({ project }) {
     <div className="space-y-4">
       {kinds.crop && (
         <div className="card p-4">
-          <h3 className="section-title mb-2">🔄 Crop Rotation {project.field ? `- ${project.field}` : ''}</h3>
+          <h3 className="section-title mb-2">Crop Rotation {project.field ? `- ${project.field}` : ''}</h3>
           {!project.field && <p className="text-sm text-gray-600">Add a field/plot name to this project (Edit) so the app can track what was planted where.</p>}
           {rot.warnings.map((w, i) => <div key={i} className="flex gap-2 rounded-xl bg-red-50 border border-red-200 text-red-800 p-3 mb-2 text-sm font-medium"><AlertTriangle size={20} className="shrink-0" />{w}</div>)}
           {rot.suggestion && <div className="flex gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 mb-2 text-sm"><Lightbulb size={20} className="shrink-0 text-amber-600" />{rot.suggestion}</div>}
@@ -159,7 +162,7 @@ function Guidance({ project }) {
               <div className="text-sm font-semibold text-gray-600 mb-1">Field history</div>
               {history.map((h) => (
                 <div key={h.id} className={clsx('flex justify-between text-sm py-1.5 border-b last:border-0', h.id === project.id && 'font-bold text-farm')}>
-                  <span>{productIcons(h.products.filter(isCrop))} {h.products.filter(isCrop).map((x) => PRODUCT_MAP[x].name).join(' + ')}</span>
+                  <span>{h.products.filter(isCrop).map((x) => PRODUCT_MAP[x].name).join(' + ')}</span>
                   <span className="text-gray-500">{fmtDate(h.startDate)}</span>
                 </div>
               ))}
@@ -187,7 +190,7 @@ function Guidance({ project }) {
           {isOwner && (Number(count) !== Number(project.fishCount) || Number(weight) !== Number(project.avgWeight)) && Number(count) > 0 && (
             <button className="btn-light btn-sm mt-2" onClick={() => { updateProject(project.id, { fishCount: count, avgWeight: weight }); toast('Saved to project') }}>Save these numbers</button>
           )}
-          <h4 className="font-semibold mt-4 mb-1">💧 Water care reminders</h4>
+          <h4 className="font-semibold mt-4 mb-1">Water care reminders</h4>
           <ul className="text-sm text-gray-700 space-y-1">{FISH_REMINDERS.map((r) => <li key={r.title}>• {r.title} - every {r.every} days</li>)}</ul>
           <button className="btn-outline btn-sm mt-3" onClick={() => addReminders(FISH_REMINDERS)}><BellPlus size={16} /> Add reminders to Tasks</button>
         </div>
@@ -198,9 +201,9 @@ function Guidance({ project }) {
         if (!g) return null
         return (
           <div key={id} className="card p-4">
-            <h3 className="section-title mb-2">{PRODUCT_MAP[id].icon} {PRODUCT_MAP[id].name} - Care Guide</h3>
+            <h3 className="section-title mb-2">{PRODUCT_MAP[id].name}: care guide</h3>
             <p className="text-sm text-gray-700 mb-3"><b>Feeding:</b> {g.feeding}</p>
-            <h4 className="font-semibold mb-1">💉 Vaccination & health schedule</h4>
+            <h4 className="font-semibold mb-1">Vaccination & health schedule</h4>
             <ul className="text-sm text-gray-700 space-y-1">
               {g.schedule.map((s) => <li key={s.title}>• {s.title}{s.every ? ` - every ${s.every} days` : s.at != null ? ` - day ${s.at} (${fmtDate(new Date(new Date(project.startDate).getTime() + s.at * 86400000).toISOString())})` : ''}</li>)}
             </ul>
@@ -209,7 +212,7 @@ function Guidance({ project }) {
         )
       })}
 
-      {!kinds.crop && !kinds.fish && !kinds.livestock.length && <Empty icon="📘" title="No guidance for custom projects" text="Ask Zozo Assistant any question about this project." />}
+      {!kinds.crop && !kinds.fish && !kinds.livestock.length && <Empty icon="" title="No guidance for custom projects" text="Ask Zozo Assistant any question about this project." />}
     </div>
   )
 }

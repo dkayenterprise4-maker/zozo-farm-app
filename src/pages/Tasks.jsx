@@ -32,7 +32,7 @@ export default function Tasks() {
   return (
     <div>
       <PageHeader title={isOwner ? 'Tasks & Reminders' : 'My Tasks'} back={false} right={isOwner && <button className="btn-primary btn-sm" onClick={() => setEdit({})}><Plus size={18} /> New Task</button>} />
-      {overdueCount > 0 && <div className="card p-3 mb-3 bg-red-50 border-red-200 text-red-700 font-semibold">⏰ {overdueCount} task{overdueCount > 1 ? 's are' : ' is'} overdue</div>}
+      {overdueCount > 0 && <div className="card p-3 mb-3 bg-red-50 border-red-200 text-red-700 font-semibold">{overdueCount} task{overdueCount > 1 ? 's are' : ' is'} overdue</div>}
       <div className="space-y-2 mb-4">
         <SearchBar value={q} onChange={setQ} placeholder="Search tasks..." />
         <Chips options={['Open', 'Today', 'Overdue', 'Done', 'All']} value={status} onChange={setStatus} />
@@ -42,7 +42,7 @@ export default function Tasks() {
         </div>
       </div>
       {list.length === 0 ? (
-        <Empty icon="✅" title={status === 'Open' ? 'No open tasks' : 'No tasks found'} text={isOwner ? 'Create tasks like "Vaccinate goats" or "Water fish pond" and assign them to workers.' : 'Nothing to do right now. Great job!'} action={isOwner && <button className="btn-primary" onClick={() => setEdit({})}><Plus size={18} /> New Task</button>} />
+        <Empty icon="" title={status === 'Open' ? 'No open tasks' : 'No tasks found'} text={isOwner ? 'Create tasks like "Vaccinate goats" or "Water fish pond" and assign them to workers.' : 'Nothing to do right now. Great job!'} action={isOwner && <button className="btn-primary" onClick={() => setEdit({})}><Plus size={18} /> New Task</button>} />
       ) : (
         <div className="space-y-2">
           {list.map((t) => {
@@ -50,7 +50,7 @@ export default function Tasks() {
             const canTick = isOwner || t.assignedTo === user.id
             return (
               <div key={t.id} className={clsx('card p-3 flex gap-3 items-start border-l-4', t.done ? 'border-l-gray-300 opacity-70' : overdue ? 'border-l-red-500 bg-red-50' : t.dueDate === t0 ? 'border-l-orange-400' : 'border-l-farm-light')}>
-                <button disabled={!canTick} onClick={() => { updateTask(t.id, { done: !t.done }); toast(t.done ? 'Task reopened' : 'Task done ✅') }} className={clsx('h-9 w-9 shrink-0 rounded-full border-2 flex items-center justify-center', t.done ? 'bg-farm border-farm text-white' : 'border-gray-300 bg-white')} aria-label="Mark done">
+                <button disabled={!canTick} onClick={() => { updateTask(t.id, { done: !t.done }); toast(t.done ? 'Task reopened' : 'Task done ') }} className={clsx('h-9 w-9 shrink-0 rounded-full border-2 flex items-center justify-center', t.done ? 'bg-farm border-farm text-white' : 'border-gray-300 bg-white')} aria-label="Mark done">
                   {t.done && <Check size={18} />}
                 </button>
                 <div className="flex-1 min-w-0">

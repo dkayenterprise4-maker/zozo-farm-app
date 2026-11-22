@@ -25,7 +25,7 @@ export default function Visits() {
         <Select value={farmId} onChange={setFarmId} options={visibleFarms.map((f) => ({ value: f.id, label: f.name }))} placeholder="All farms" />
       </div>
       {list.length === 0 ? (
-        <Empty icon="📝" title="No visits logged" text="Each time you or a worker visits a farm, write what you saw and what needs fixing." action={<button className="btn-primary" onClick={() => setAdding(true)}><Plus size={18} /> Log a Visit</button>} />
+        <Empty icon="" title="No visits logged" text="Each time you or a worker visits a farm, write what you saw and what needs fixing." action={<button className="btn-primary" onClick={() => setAdding(true)}><Plus size={18} /> Log a Visit</button>} />
       ) : (
         <div className="space-y-3">
           {list.map((v) => (
@@ -89,7 +89,7 @@ function AddVisit({ open, onClose, defaultFarm }) {
         <Field label="What did you see?" error={err.saw}><textarea className="input" rows={3} value={f.saw} onChange={set('saw')} placeholder="e.g. Maize looks healthy, goats grazing well" /></Field>
         <Field label="What needs fixing?"><textarea className="input" rows={2} value={f.fix} onChange={set('fix')} placeholder="e.g. Broken fence near the gate" /></Field>
         <Field label="Photos">
-          <div className="grid grid-cols-3 gap-2 mb-2">{photos.map((p, i) => <div key={i} className="relative"><img src={p} alt="" className="h-20 w-full object-cover rounded-lg" /><button type="button" onClick={() => setPhotos(photos.filter((_, j) => j !== i))} className="absolute top-1 right-1 bg-black/60 text-white rounded-full h-6 w-6 text-xs">✕</button></div>)}</div>
+          <div className="grid grid-cols-3 gap-2 mb-2">{photos.map((p, i) => <div key={i} className="relative"><img src={p} alt="" className="h-20 w-full object-cover rounded-lg" /><button type="button" onClick={() => setPhotos(photos.filter((_, j) => j !== i))} className="absolute top-1 right-1 bg-black/60 text-white rounded-full h-6 w-6 text-xs"></button></div>)}</div>
           {photos.length < 6 && <PhotoPicker value={null} onChange={(p) => p && setPhotos([...photos, p])} label="Add photo" />}
         </Field>
         <button className="btn-primary w-full">Save Visit</button>

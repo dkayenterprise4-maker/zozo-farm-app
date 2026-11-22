@@ -1,13 +1,14 @@
+import { ShoppingCart, Receipt, ClipboardList, Camera, CheckSquare, Package, Landmark, Sprout, Home, User, Dot } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useStore } from '../lib/store'
 import { PageHeader, SearchBar, Chips, Empty, Select } from '../components/ui'
 import { fmtDate, matches, timeAgo } from '../lib/utils'
 
 const TYPES = [
-  { id: 'all', label: 'All' }, { id: 'sale', label: '💰 Sales' }, { id: 'expense', label: '🧾 Expenses' }, { id: 'visit', label: '📝 Visits' },
-  { id: 'photo', label: '📷 Photos' }, { id: 'task', label: '✅ Tasks' }, { id: 'inventory', label: '📦 Stock' }, { id: 'investment', label: '🏦 Capital' }, { id: 'project', label: '🌱 Projects' }
+  { id: 'all', label: 'All' }, { id: 'sale', label: 'Sales' }, { id: 'expense', label: 'Expenses' }, { id: 'visit', label: 'Visits' },
+  { id: 'photo', label: 'Photos' }, { id: 'task', label: 'Tasks' }, { id: 'inventory', label: 'Stock' }, { id: 'investment', label: 'Capital' }, { id: 'project', label: 'Projects' }
 ]
-const ICON = { sale: '💰', expense: '🧾', visit: '📝', photo: '📷', task: '✅', inventory: '📦', investment: '🏦', project: '🌱', farm: '🚜', user: '👤' }
+const ICON = { sale: ShoppingCart, expense: Receipt, visit: ClipboardList, photo: Camera, task: CheckSquare, inventory: Package, investment: Landmark, project: Sprout, farm: Home, user: User }
 
 export default function ActivityFeed() {
   const { state, markSeen, user } = useStore()
@@ -32,7 +33,7 @@ export default function ActivityFeed() {
         </div>
         <Chips options={TYPES} value={type} onChange={setType} />
       </div>
-      {list.length === 0 ? <Empty icon="📭" title="No activity found" text="When you or your workers add something, it shows here." /> : (
+      {list.length === 0 ? <Empty title="No activity found" text="When you or your workers add something, it shows here." /> : (
         <div className="relative pl-6">
           <div className="absolute left-2.5 top-0 bottom-0 w-0.5 bg-farm-light/30" />
           {list.slice(0, 300).map((a) => {
@@ -45,7 +46,7 @@ export default function ActivityFeed() {
                 <div className="relative mb-2">
                   <span className="absolute -left-[22px] top-3 h-4 w-4 rounded-full bg-white border-2 border-farm-light" />
                   <div className={`card p-3 ${a.ts > seen && a.userId !== user.id ? 'bg-farm-pale' : ''}`}>
-                    <p className="text-sm"><span className="mr-1">{ICON[a.type] || '•'}</span><b>{a.userName}</b> {a.text}</p>
+                    <p className="text-sm">{(() => { const I = ICON[a.type] || Dot; return <I size={15} className="inline mr-1.5 -mt-0.5 text-stone-500" /> })()}<b>{a.userName}</b> {a.text}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{timeAgo(a.ts)}{a.farmId ? ` · ${farmName(a.farmId) || ''}` : ''}</p>
                   </div>
                 </div>

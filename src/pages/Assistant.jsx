@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Mic, MicOff, Send, Sparkles, Volume2, ImagePlus, X, Trash2, Square } from 'lucide-react'
+import { Mic, MicOff, Send, MessageCircle, Volume2, ImagePlus, X, Trash2, Square } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { ruleAnswer, aiAnswer } from '../lib/assistant'
 import { diagnose } from '../lib/knowledge'
@@ -35,7 +35,7 @@ export default function Assistant() {
   const ask = async (q) => {
     const question = (q ?? text).trim()
     if (!question && !img) return
-    const userMsg = { id: uid(), role: 'user', text: question || '📷 Photo', img }
+    const userMsg = { id: uid(), role: 'user', text: question || 'Photo', img }
     const history = [...msgs]
     setMsgs((m) => [...m, userMsg])
     setText('')
@@ -48,7 +48,7 @@ export default function Assistant() {
         reply = { text: await aiAnswer(state, user, history, question, photo), ai: true }
       } else {
         await new Promise((r) => setTimeout(r, 350))
-        if (photo) reply = { text: `📷 Photo check (offline helper):\n\n${diagnose(question)}\n\nTip: add a Claude AI key in Settings to get the photo itself analysed.` }
+        if (photo) reply = { text: `Photo check (offline helper):\n\n${diagnose(question)}\n\nTip: add a Claude AI key in Settings to get the photo itself analysed.` }
         else reply = ruleAnswer(state, user, question, farmId)
       }
     } catch (e) {
@@ -103,7 +103,7 @@ export default function Assistant() {
   const suggestions = user.role === 'owner' ? SUGGEST_OWNER : SUGGEST_WORKER
   return (
     <div className="flex flex-col min-h-[calc(100vh-180px)] lg:min-h-[calc(100vh-120px)]">
-      <PageHeader title="Zozo Assistant" subtitle={useAI ? '✨ Smart AI mode (Claude)' : online ? 'Built-in assistant · works offline' : 'Offline mode · built-in assistant'} right={msgs.length > 0 && <button onClick={clear} className="h-11 w-11 rounded-xl bg-white border flex items-center justify-center text-gray-500" aria-label="Clear chat"><Trash2 size={18} /></button>} />
+      <PageHeader title="Zozo Assistant" subtitle={useAI ? 'Smart AI mode (Claude)' : online ? 'Built-in assistant · works offline' : 'Offline mode · built-in assistant'} right={msgs.length > 0 && <button onClick={clear} className="h-11 w-11 rounded-xl bg-white border flex items-center justify-center text-gray-500" aria-label="Clear chat"><Trash2 size={18} /></button>} />
       {visibleFarms.length > 1 && (
         <div className="mb-3"><Select value={farmId} onChange={setFarmId} options={visibleFarms.map((f) => ({ value: f.id, label: 'Talking about: ' + f.name }))} placeholder="Talking about: All farms" /></div>
       )}
@@ -111,9 +111,9 @@ export default function Assistant() {
       <div className="flex-1 space-y-3 mb-3">
         {msgs.length === 0 && (
           <div className="text-center py-6">
-            <div className="mx-auto h-16 w-16 rounded-full bg-earth text-white flex items-center justify-center mb-3"><Sparkles size={32} /></div>
+            <div className="mx-auto h-16 w-16 rounded-full bg-earth text-white flex items-center justify-center mb-3"><MessageCircle size={32} /></div>
             <h2 className="text-xl font-bold">How can I help you today?</h2>
-            <p className="text-gray-500 mb-4">Ask about your farms or any farming question. Tap 🎤 to speak.</p>
+            <p className="text-gray-500 mb-4">Ask about your farms or any farming question. Tap to speak.</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {suggestions.map((s) => <button key={s} onClick={() => ask(s)} className="chip-off hover:bg-farm-pale">{s}</button>)}
             </div>
@@ -121,7 +121,7 @@ export default function Assistant() {
         )}
         {msgs.map((m) => (
           <div key={m.id} className={clsx('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
-            <div className={clsx('max-w-[88%] rounded-2xl px-4 py-3 shadow-sm', m.role === 'user' ? 'bg-farm text-white rounded-br-md' : 'bg-white rounded-bl-md')}>
+            <div className={clsx('max-w-[88%] rounded-lg px-4 py-3', m.role === 'user' ? 'bg-farm text-white rounded-br-md' : 'bg-white rounded-bl-md')}>
               {m.img && <img src={m.img} alt="" className="rounded-xl mb-2 max-h-48" />}
               <div className="whitespace-pre-line text-[15px] leading-relaxed break-words">{m.text}</div>
               {m.actions?.length > 0 && (
@@ -137,7 +137,7 @@ export default function Assistant() {
             </div>
           </div>
         ))}
-        {busy && <div className="bg-white rounded-2xl px-4 py-3 w-20 shadow-sm flex gap-1"><span className="dot">●</span><span className="dot" style={{ animationDelay: '.2s' }}>●</span><span className="dot" style={{ animationDelay: '.4s' }}>●</span></div>}
+        {busy && <div className="bg-white rounded-lg px-4 py-3 w-20 flex gap-1"><span className="dot">●</span><span className="dot" style={{ animationDelay: '.2s' }}>●</span><span className="dot" style={{ animationDelay: '.4s' }}>●</span></div>}
         <div ref={endRef} />
       </div>
 

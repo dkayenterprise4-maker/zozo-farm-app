@@ -4,8 +4,9 @@ import { Plus, ChevronRight } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { statement } from '../lib/finance'
 import { money, fmtDate, matches, clsx } from '../lib/utils'
-import { productIcons, productNames, PRODUCT_MAP, PROJECT_STATUSES } from '../lib/constants'
-import { PageHeader, SearchBar, Chips, Empty, Badge } from '../components/ui'
+import { productPhoto } from '../lib/photos'
+import { productNames, PRODUCT_MAP, PROJECT_STATUSES } from '../lib/constants'
+import { PageHeader, SearchBar, Chips, Empty, Badge, ProductThumb } from '../components/ui'
 import ProjectForm from '../components/ProjectForm'
 
 export default function Projects() {
@@ -34,15 +35,15 @@ export default function Projects() {
         <Chips options={['All', 'Crops', 'Livestock', 'Fish Farming', 'Other']} value={group} onChange={setGroup} />
       </div>
       {list.length === 0 ? (
-        <Empty icon="🌾" title={q || status !== 'All' || group !== 'All' ? 'No projects match' : 'No projects yet'} text="Projects keep each crop, animal or fish business separate so you see its own profit." action={isOwner && <button className="btn-primary" onClick={() => setOpen(true)}><Plus size={18} /> Create Project</button>} />
+        <Empty photo={productPhoto(['maize'], true)} title={q || status !== 'All' || group !== 'All' ? 'No projects match' : 'No projects yet'} text="Projects keep each crop, animal or fish business separate so you see its own profit." action={isOwner && <button className="btn-primary" onClick={() => setOpen(true)}><Plus size={18} /> Create Project</button>} />
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">
           {list.map((p) => {
             const st = statement(state, { projectId: p.id })
             return (
-              <Link key={p.id} to={`/project/${p.id}`} className="card p-4 active:scale-[0.99]">
+              <Link key={p.id} to={`/project/${p.id}`} className="card p-4">
                 <div className="flex items-start gap-3">
-                  <div className="text-3xl">{productIcons(p.products)}</div>
+                  <ProductThumb ids={p.products} className="h-14 w-14" />
                   <div className="flex-1 min-w-0">
                     <div className="font-bold leading-tight">{p.name}</div>
                     <div className="text-xs text-gray-500 mt-0.5">{productNames(p.products)}{p.field ? ` · ${p.field}` : ''}</div>

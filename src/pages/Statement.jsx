@@ -4,7 +4,7 @@ import { FileSpreadsheet, FileText, FileType, Presentation, Loader2, Download } 
 import { useStore } from '../lib/store'
 import { buildReport, EXPORTERS } from '../lib/exports'
 import { money, pct, periodRange, clsx } from '../lib/utils'
-import { PageHeader, PeriodFilter, Select, Stat, Logo } from '../components/ui'
+import { PageHeader, PeriodFilter, Select, Stat, Logo, CatDot } from '../components/ui'
 import { IncomeExpenseChart, ExpensePie } from '../components/Charts'
 
 const FORMATS = [
@@ -68,7 +68,7 @@ export default function Statement() {
         <div className="flex items-center gap-3 border-b-4 border-farm-light pb-3 mb-4">
           <Logo size={40} className="shrink-0" />
           <div className="shrink-0">
-            <div className="font-extrabold text-farm leading-tight whitespace-nowrap">Zozo Farm App</div>
+            <div className="font-bold text-farm leading-tight whitespace-nowrap">Zozo Farm App</div>
             <div className="text-[11px] text-earth italic whitespace-nowrap">Your Farms, In Your Pocket</div>
           </div>
           <div className="flex-1 min-w-0 text-right text-sm">
@@ -90,9 +90,9 @@ export default function Statement() {
             {st.salesByItem.map((s) => <tr key={s.item} className="text-gray-600"><td className="py-1 px-2 pl-6">{s.item} ({s.qty} {s.unit})</td><td className="py-1 px-2 text-right">{money(s.amount)}</td></tr>)}
             <tr className="bg-earth-pale font-bold"><td className="p-2">Less: Expenses</td><td className="p-2 text-right" /></tr>
             {st.byCategory.length === 0 && <tr><td className="py-1 px-2 pl-6 text-gray-500">No expenses</td><td /></tr>}
-            {st.byCategory.map((c) => <tr key={c.category} className="text-gray-700"><td className="py-1 px-2 pl-6">{c.icon} {c.category} <span className="text-gray-400 text-xs">({c.share.toFixed(1)}%)</span></td><td className="py-1 px-2 text-right">({money(c.amount)})</td></tr>)}
+            {st.byCategory.map((c) => <tr key={c.category} className="text-gray-700"><td className="py-1 px-2 pl-6"><CatDot color={c.color} />{c.category} <span className="text-gray-400 text-xs">({c.share.toFixed(1)}%)</span></td><td className="py-1 px-2 text-right">({money(c.amount)})</td></tr>)}
             <tr className="font-bold border-t"><td className="p-2">Total Expenses</td><td className="p-2 text-right">({money(st.totalExpenses)})</td></tr>
-            <tr className={clsx('font-extrabold text-lg border-t-2 border-b-4 border-double', st.net >= 0 ? 'text-farm border-farm' : 'text-red-600 border-red-600')}><td className="p-2">{st.net >= 0 ? 'NET PROFIT' : 'NET LOSS'}</td><td className="p-2 text-right">{money(st.net)}</td></tr>
+            <tr className={clsx('font-bold text-lg border-t-2 border-b-4 border-double', st.net >= 0 ? 'text-farm border-farm' : 'text-red-600 border-red-600')}><td className="p-2">{st.net >= 0 ? 'NET PROFIT' : 'NET LOSS'}</td><td className="p-2 text-right">{money(st.net)}</td></tr>
             <tr><td className="p-2 text-gray-600">Profit Margin</td><td className="p-2 text-right font-semibold">{pct(st.margin)}</td></tr>
             <tr className="bg-blue-50"><td className="p-2 text-gray-700">Capital Injected <span className="text-xs">(separate - not income)</span></td><td className="p-2 text-right font-semibold">{money(st.totalInvestment)}</td></tr>
           </tbody>
@@ -125,7 +125,7 @@ export default function Statement() {
 
       <div className="card p-4">
         <h3 className="section-title mb-2">Recommendations</h3>
-        <ul className="space-y-2 text-sm text-gray-700">{r.recs.map((x, i) => <li key={i}>💡 {x}</li>)}</ul>
+        <ul className="space-y-2 text-sm text-gray-700">{r.recs.map((x, i) => <li key={i} className="pl-3 border-l-2 border-farm-light">{x}</li>)}</ul>
       </div>
     </div>
   )

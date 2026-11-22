@@ -1,23 +1,32 @@
 import { useState } from 'react'
 import { useStore } from '../lib/store'
 import { Logo, Field } from '../components/ui'
+import { photo } from '../lib/photos'
 import { clsx } from '../lib/utils'
 import { Delete, Eye, EyeOff, Loader2 } from 'lucide-react'
 
 export default function Auth() {
   const [mode, setMode] = useState('login') // login | pin | signup
   return (
-    <div className="min-h-screen bg-gradient-to-b from-farm to-farm-dark flex flex-col">
-      <div className="flex flex-col items-center pt-10 pb-6 text-white">
-        <Logo size={72} className="drop-shadow-lg" />
-        <h1 className="text-3xl font-extrabold mt-3">Zozo Farm App</h1>
-        <p className="text-green-200">Your Farms, In Your Pocket</p>
+    <div className="min-h-screen bg-page flex flex-col">
+      <div className="relative h-56 sm:h-72 overflow-hidden">
+        <img src={photo('hero')} alt="Farmer planting seed in a Zambian field" className="absolute inset-0 w-full h-full object-cover object-[50%_20%]" />
+        <div className="absolute inset-0 bg-black/45" />
+        <div className="relative h-full max-w-md mx-auto px-4 flex flex-col justify-end pb-5 text-white">
+          <div className="flex items-center gap-3">
+            <Logo size={44} />
+            <div>
+              <h1 className="text-2xl font-bold leading-tight">Zozo Farm</h1>
+              <p className="text-white/85 text-sm">Farm records for Zambia: sales, costs, stock and workers</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="flex-1 bg-page rounded-t-[2rem] px-4 pt-6 pb-10">
+      <div className="flex-1 px-4 pt-5 pb-10">
         <div className="max-w-md mx-auto">
-          <div className="grid grid-cols-3 bg-white rounded-2xl p-1 border mb-6">
-            {[['login', 'Email Login'], ['pin', 'PIN Login'], ['signup', 'Sign Up']].map(([m, l]) => (
-              <button key={m} onClick={() => setMode(m)} className={clsx('rounded-xl py-3 text-sm font-bold', mode === m ? 'bg-farm text-white' : 'text-gray-600')}>{l}</button>
+          <div className="grid grid-cols-3 border-b border-stone-300 mb-5">
+            {[['login', 'Email'], ['pin', 'PIN'], ['signup', 'Sign up']].map(([m, l]) => (
+              <button key={m} onClick={() => setMode(m)} className={clsx('py-3 text-base font-semibold -mb-px border-b-2', mode === m ? 'border-farm text-farm' : 'border-transparent text-gray-500')}>{l}</button>
             ))}
           </div>
           {mode === 'login' && <Login />}
@@ -55,11 +64,12 @@ function Login() {
       </Field>
       {err && <p className="text-red-600 font-medium mb-3">{err}</p>}
       <button className="btn-primary w-full text-lg" disabled={busy}>{busy && <Loader2 className="animate-spin" size={18} />} Log In</button>
-      <div className="mt-6 card p-4">
-        <p className="font-bold text-gray-800 mb-2">Demo accounts (password 123456, PIN 1234)</p>
+      <div className="mt-6 rounded-lg border border-dashed border-stone-300 p-4">
+        <p className="font-semibold text-gray-700">Try the demo</p>
+        <p className="text-sm text-gray-500 mb-3">Password 123456 · PIN 1234</p>
         <div className="grid grid-cols-2 gap-2">
-          <button type="button" className="btn-light btn-sm" onClick={() => demo('zozo@gmail.com')}>👑 Owner (Zozo)</button>
-          <button type="button" className="btn-light btn-sm" onClick={() => demo('worker@gmail.com')}>👷 Worker (John)</button>
+          <button type="button" className="btn-light btn-sm" onClick={() => demo('zozo@gmail.com')}>Owner: Zozo</button>
+          <button type="button" className="btn-light btn-sm" onClick={() => demo('worker@gmail.com')}>Worker: John</button>
         </div>
       </div>
     </form>
@@ -86,7 +96,7 @@ function PinLogin() {
       <p className="label">Who is using the phone?</p>
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 mb-4">
         {users.map((u) => (
-          <button key={u.id} onClick={() => { setUid(u.id); setPin(''); setErr('') }} className={clsx('flex flex-col items-center gap-1 rounded-2xl px-3 py-2 min-w-[84px] border-2', uid === u.id ? 'border-farm bg-farm-pale' : 'border-transparent bg-white')}>
+          <button key={u.id} onClick={() => { setUid(u.id); setPin(''); setErr('') }} className={clsx('flex flex-col items-center gap-1 rounded-lg px-3 py-2 min-w-[84px] border-2', uid === u.id ? 'border-farm bg-farm-pale' : 'border-transparent bg-white')}>
             <span className="h-11 w-11 rounded-full bg-farm text-white flex items-center justify-center font-bold text-lg">{u.name[0]}</span>
             <span className="text-xs font-semibold truncate max-w-[76px]">{u.name.split(' ')[0]}</span>
             <span className="text-[10px] text-gray-500 capitalize">{u.role}</span>
@@ -98,10 +108,10 @@ function PinLogin() {
       </div>
       <p className="text-center text-red-600 font-medium h-6">{err}</p>
       <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => <button key={n} onClick={() => press(String(n))} className="h-16 rounded-2xl bg-white border text-2xl font-bold active:bg-farm-pale">{n}</button>)}
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => <button key={n} onClick={() => press(String(n))} className="h-16 rounded-lg bg-white border text-2xl font-bold active:bg-farm-pale">{n}</button>)}
         <span />
-        <button onClick={() => press('0')} className="h-16 rounded-2xl bg-white border text-2xl font-bold active:bg-farm-pale">0</button>
-        <button onClick={() => setPin(pin.slice(0, -1))} className="h-16 rounded-2xl bg-white border flex items-center justify-center active:bg-gray-100" aria-label="Delete"><Delete /></button>
+        <button onClick={() => press('0')} className="h-16 rounded-lg bg-white border text-2xl font-bold active:bg-farm-pale">0</button>
+        <button onClick={() => setPin(pin.slice(0, -1))} className="h-16 rounded-lg bg-white border flex items-center justify-center active:bg-gray-100" aria-label="Delete"><Delete /></button>
       </div>
     </div>
   )
@@ -138,7 +148,7 @@ function Signup() {
       </div>
       <Field label="Role">
         <div className="grid grid-cols-2 gap-2">
-          {[['owner', '👑 Owner', 'Full access'], ['worker', '👷 Worker', 'Add records only']].map(([r, l, d]) => (
+          {[['owner', 'Owner', 'Full access'], ['worker', 'Worker', 'Add records only']].map(([r, l, d]) => (
             <button type="button" key={r} onClick={() => setF({ ...f, role: r })} className={clsx('rounded-xl border-2 p-3 text-left', f.role === r ? 'border-farm bg-farm-pale' : 'border-gray-200 bg-white')}>
               <div className="font-bold">{l}</div><div className="text-xs text-gray-500">{d}</div>
             </button>

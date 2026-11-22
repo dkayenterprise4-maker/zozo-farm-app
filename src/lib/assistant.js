@@ -57,7 +57,7 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
 
   // Greetings
   if (/^\s*(hi|hello|hey|good (morning|afternoon|evening)|muli shani|mwabuka)\b/.test(q) && q.trim().split(' ').length <= 4)
-    return { text: `Hello ${user.name}! 👋 I am Zozo Assistant. Ask me about your farms (e.g. "How did Farm A do this month?") or any farming question (e.g. "How do I stop fall armyworm?").` }
+    return { text: `Hello ${user.name}! I am Zozo Assistant. Ask me about your farms (e.g. "How did Farm A do this month?") or any farming question (e.g. "How do I stop fall armyworm?").` }
 
   const moneyQ = has(q, /profit|loss|how (did|is|was|are)|doing|perform|summary|made|earn|income statement|statement|report|sales|sold|revenue|expense|cost|spend|spent|projection|projected|forecast|compare|best project|margin|money/)
   const farmingQ = searchKnowledge(question, 1)[0]
@@ -71,7 +71,7 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
     const range = periodRange(periodId)
     const f = all ? null : target[0]
     const st = statement(state, { farmId: f?.id, range })
-    let t = `📄 ${periodId === 'month' || periodId === 'lastmonth' ? 'Monthly' : ''} Report - ${f ? f.name : 'All Farms'} (${range.label})\n\n`
+    let t = `${periodId === 'month' || periodId === 'lastmonth' ? 'Monthly' : ''} Report - ${f ? f.name : 'All Farms'} (${range.label})\n\n`
     t += `Sales: ${money(st.totalSales)}\nExpenses: ${money(st.totalExpenses)}\n${st.net >= 0 ? 'Net Profit' : 'Net Loss'}: ${money(st.net)}\nMargin: ${pct(st.margin)}\nCapital injected: ${money(st.totalInvestment)}\n`
     if (st.byCategory.length) t += `\nTop expenses:\n` + st.byCategory.slice(0, 3).map((c, i) => `${i + 1}. ${c.category}: ${money(c.amount)} (${c.share.toFixed(0)}%)`).join('\n')
     const ins = insights(state, { farmId: f?.id, range })
@@ -87,7 +87,7 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
     const range = periodRange(periodId)
     const rows = farms.map((f) => ({ f, st: statement(state, { farmId: f.id, range }) })).sort((a, b) => b.st.net - a.st.net)
     let t = `Farm comparison - ${range.label}\n\n` + rows.map((r, i) => `${i + 1}. ${r.f.name}: sales ${money(r.st.totalSales)}, expenses ${money(r.st.totalExpenses)}, ${r.st.net >= 0 ? 'profit' : 'loss'} ${money(r.st.net)}`).join('\n')
-    t += `\n\n🏆 Best: ${rows[0].f.name}.`
+    t += `\n\nBest: ${rows[0].f.name}.`
     return { text: t, actions: [{ label: 'All-farms statement', to: '/statement' }] }
   }
 
@@ -97,7 +97,7 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
       const p = projection(state, { farmId: f.id })
       return `• ${f.name}: averaging ${money(p.avgMonthly, { decimals: 0 })} per month. At the current rate it is projected to ${p.projected >= 0 ? 'make' : 'lose'} ${money(Math.abs(p.projected), { decimals: 0 })} by ${p.target} (so far this year: ${money(p.ytd, { decimals: 0 })}).`
     })
-    return { text: `📈 Projections\n\n${lines.join('\n')}\n\nThis uses the average profit of the last 3 months with activity. Seasonal crops (like maize) earn mostly at harvest, so treat it as a guide.` }
+    return { text: `Projections\n\n${lines.join('\n')}\n\nThis uses the average profit of the last 3 months with activity. Seasonal crops (like maize) earn mostly at harvest, so treat it as a guide.` }
   }
 
   // ---- Best project ----
@@ -122,7 +122,7 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
     })
     let t = out.join('\n\n')
     const top = statement(state, { farmId: all ? undefined : target[0]?.id, range }).byCategory[0]
-    if (top) t += `\n\n💡 Your biggest cost is ${top.category}. Cutting it by 10% saves about ${money(top.amount * 0.1, { decimals: 0 })}.` + (top.category === 'Feed' ? ' Buy feed in bulk, avoid spillage, and grow fodder or use crop residues.' : '')
+    if (top) t += `\n\nYour biggest cost is ${top.category}. Cutting it by 10% saves about ${money(top.amount * 0.1, { decimals: 0 })}.` + (top.category === 'Feed' ? ' Buy feed in bulk, avoid spillage, and grow fodder or use crop residues.' : '')
     return { text: t }
   }
 
@@ -150,7 +150,7 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
     }
     if (isOwner) {
       const ins = insights(state, { farmId: all ? undefined : list[0]?.id, range: periodRange(periodId) })
-      if (ins[0]) t += `\n\n💡 ${ins[0].title}. ${ins[0].text}`
+      if (ins[0]) t += `\n\n${ins[0].title}. ${ins[0].text}`
       actions.push({ label: 'Open statement', to: `/statement?farm=${all ? '' : list[0]?.id}&period=${periodId === 'lastmonth' ? 'month' : periodId}` })
     }
     if (implied) t += `\n(Showing ${list[0].name}. Name another farm to switch.)`
@@ -162,8 +162,8 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
     const items = state.inventory.filter((i) => farms.some((f) => f.id === i.farmId) && (all || target.some((f) => f.id === i.farmId)))
     if (!items.length) return { text: 'No stock items recorded yet. Add them in the Stock page.' }
     const low = items.filter((i) => Number(i.qty) <= Number(i.lowStock))
-    let t = items.map((i) => `${Number(i.qty) <= Number(i.lowStock) ? '🔴' : '🟢'} ${i.name}: ${i.qty} ${i.unit} (${state.farms.find((f) => f.id === i.farmId)?.name.split(' - ')[0]})`).join('\n')
-    t = (low.length ? `⚠️ ${low.length} item(s) are low and need buying:\n${low.map((i) => '• ' + i.name).join('\n')}\n\nAll stock:\n` : 'Stock levels:\n') + t
+    let t = items.map((i) => `${Number(i.qty) <= Number(i.lowStock) ? '' : ''} ${i.name}: ${i.qty} ${i.unit} (${state.farms.find((f) => f.id === i.farmId)?.name.split(' - ')[0]})`).join('\n')
+    t = (low.length ? `${low.length} item(s) are low and need buying:\n${low.map((i) => '• ' + i.name).join('\n')}\n\nAll stock:\n` : 'Stock levels:\n') + t
     return { text: t, actions: [{ label: 'Open stock', to: '/inventory' }] }
   }
 
@@ -171,15 +171,15 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
   if (has(q, /task|overdue|to do|todo|what should i do|remind|due/)) {
     const t0 = today()
     const tasks = state.tasks.filter((t) => !t.done && farms.some((f) => f.id === t.farmId) && (isOwner || t.assignedTo === user.id))
-    if (!tasks.length) return { text: 'You have no open tasks. 🎉' }
+    if (!tasks.length) return { text: 'You have no open tasks. ' }
     const overdue = tasks.filter((t) => t.dueDate < t0)
     const todayT = tasks.filter((t) => t.dueDate === t0)
     const upcoming = tasks.filter((t) => t.dueDate > t0).sort((a, b) => a.dueDate.localeCompare(b.dueDate)).slice(0, 5)
     const name = (id) => state.users.find((u) => u.id === id)?.name || 'Unassigned'
     let t = ''
-    if (overdue.length) t += `🔴 Overdue:\n${overdue.map((x) => `• ${x.title} (due ${fmtDate(x.dueDate)}, ${name(x.assignedTo)})`).join('\n')}\n\n`
-    if (todayT.length) t += `🟠 Today:\n${todayT.map((x) => `• ${x.title} (${name(x.assignedTo)})`).join('\n')}\n\n`
-    if (upcoming.length) t += `📅 Coming up:\n${upcoming.map((x) => `• ${x.title} - ${fmtDate(x.dueDate)}`).join('\n')}`
+    if (overdue.length) t += `Overdue:\n${overdue.map((x) => `• ${x.title} (due ${fmtDate(x.dueDate)}, ${name(x.assignedTo)})`).join('\n')}\n\n`
+    if (todayT.length) t += `Today:\n${todayT.map((x) => `• ${x.title} (${name(x.assignedTo)})`).join('\n')}\n\n`
+    if (upcoming.length) t += `Coming up:\n${upcoming.map((x) => `• ${x.title} - ${fmtDate(x.dueDate)}`).join('\n')}`
     return { text: t.trim(), actions: [{ label: 'Open tasks', to: '/tasks' }] }
   }
 
@@ -189,9 +189,9 @@ export function ruleAnswer(state, user, question, ctxFarmId) {
     const ins = insights(state, { farmId: f?.id, range: periodRange('year') })
     const best = bestProject(state, f?.id)
     let t = `Suggestions for ${f ? f.name : 'your farms'}:\n\n` + ins.map((i) => `${i.icon} ${i.title}. ${i.text}`).join('\n\n')
-    if (best) t += `\n\n🏆 Best performing project: ${best.project.name} (${money(best.net)}). Consider growing it.`
+    if (best) t += `\n\nBest performing project: ${best.project.name} (${money(best.net)}). Consider growing it.`
     const low = state.inventory.filter((i) => (!f || i.farmId === f.id) && Number(i.qty) <= Number(i.lowStock))
-    if (low.length) t += `\n\n📦 Low stock: ${low.map((i) => i.name).join(', ')}. Buy before you run out.`
+    if (low.length) t += `\n\nLow stock: ${low.map((i) => i.name).join(', ')}. Buy before you run out.`
     return { text: t }
   }
 

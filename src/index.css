@@ -5,29 +5,30 @@
 html, body, #root { min-height: 100%; }
 body {
   margin: 0;
-  background: #F4F5F0;
+  background: #F6F5F1;
   color: #1f2a1f;
   -webkit-tap-highlight-color: transparent;
-  font-family: Inter, system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Source Sans 3', system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 17px;
 }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 font-semibold min-h-[48px] transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none select-none; }
-  .btn-primary { @apply btn bg-farm text-white shadow-sm hover:bg-farm-dark; }
-  .btn-light { @apply btn bg-farm-pale text-farm hover:bg-green-100; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 font-semibold min-h-[48px] transition-colors disabled:opacity-50 disabled:pointer-events-none select-none; }
+  .btn-primary { @apply btn bg-farm text-white hover:bg-farm-dark; }
+  .btn-light { @apply btn bg-farm-pale text-farm border border-farm/15 hover:bg-[#E2EBDD]; }
   .btn-earth { @apply btn bg-earth text-white hover:bg-[#5d4037]; }
   .btn-outline { @apply btn border-2 border-farm text-farm bg-white hover:bg-farm-pale; }
   .btn-ghost { @apply btn bg-white text-gray-700 border border-gray-200 hover:bg-gray-50; }
   .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700; }
-  .btn-sm { @apply min-h-[38px] px-3 text-sm rounded-lg; }
-  .card { @apply bg-white rounded-2xl shadow-sm border border-black/5; }
-  .input { @apply w-full rounded-xl border border-gray-300 bg-white px-3 min-h-[48px] text-base outline-none focus:border-farm-light focus:ring-2 focus:ring-farm-light/30; }
+  .btn-sm { @apply min-h-[38px] px-3 text-sm rounded-md; }
+  .card { @apply bg-white rounded-lg border border-stone-200; }
+  .input { @apply w-full rounded-lg border border-stone-300 bg-white px-3 min-h-[48px] text-base outline-none focus:border-farm-light focus:ring-2 focus:ring-farm-light/30; }
   textarea.input { @apply py-3; }
   .label { @apply block text-sm font-semibold text-gray-700 mb-1; }
-  .chip { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium border whitespace-nowrap; }
+  .chip { @apply inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-semibold border whitespace-nowrap; }
   .chip-on { @apply chip bg-farm text-white border-farm; }
-  .chip-off { @apply chip bg-white text-gray-700 border-gray-300; }
-  .section-title { @apply text-lg font-bold text-gray-800; }
+  .chip-off { @apply chip bg-white text-gray-700 border-stone-300; }
+  .section-title { @apply text-lg font-semibold text-gray-900; }
 }
 
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }

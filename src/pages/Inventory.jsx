@@ -34,9 +34,9 @@ export default function Inventory() {
           <Chips options={['All', 'Low Stock']} value={show} onChange={setShow} />
         </div>
       </div>
-      <p className="text-sm text-gray-500 mb-3">💡 When you add an expense (e.g. feed), choose "Add to stock" and the quantity updates automatically.</p>
+      <p className="text-sm text-gray-500 mb-3">When you add an expense (e.g. feed), choose "Add to stock" and the quantity updates automatically.</p>
       {list.length === 0 ? (
-        <Empty icon="📦" title="No stock items" text="Track bags of feed, fertilizer, chemicals, chicks and more." action={isOwner && <button className="btn-primary" onClick={() => setEdit({})}><Plus size={18} /> Add Item</button>} />
+        <Empty icon="" title="No stock items" text="Track bags of feed, fertilizer, chemicals, chicks and more." action={isOwner && <button className="btn-primary" onClick={() => setEdit({})}><Plus size={18} /> Add Item</button>} />
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">
           {list.map((i) => {
@@ -57,7 +57,7 @@ export default function Inventory() {
                   )}
                 </div>
                 <div className="flex items-end justify-between mt-2">
-                  <div className={clsx('text-3xl font-extrabold', low ? 'text-red-600' : 'text-farm')}>{i.qty} <span className="text-base font-semibold text-gray-500">{i.unit}</span></div>
+                  <div className={clsx('text-3xl font-bold', low ? 'text-red-600' : 'text-farm')}>{i.qty} <span className="text-base font-semibold text-gray-500">{i.unit}</span></div>
                   {low && <span className="text-xs font-bold text-white bg-red-600 rounded-full px-2 py-1">LOW STOCK</span>}
                 </div>
                 <div className="h-2 bg-gray-200 rounded-full mt-2"><div className={clsx('h-full rounded-full', low ? 'bg-red-500' : 'bg-farm-light')} style={{ width: `${pct}%` }} /></div>

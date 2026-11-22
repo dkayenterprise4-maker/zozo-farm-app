@@ -124,11 +124,11 @@ function TransactionFormInner() {
               <Field label="Unit"><Select value={f.unit} onChange={set('unit')} options={UNITS} /></Field>
             </div>
             <Field label={`Price per ${f.unit} (K) *`} error={errs.unitPrice}><input className="input" inputMode="decimal" value={f.unitPrice} onChange={set('unitPrice')} placeholder="0.00" /></Field>
-            <div className="rounded-xl bg-farm-pale p-4 mb-3 flex justify-between items-center"><span className="font-semibold">Total</span><span className="text-2xl font-extrabold text-farm">{money(total)}</span></div>
+            <div className="rounded-xl bg-farm-pale p-4 mb-3 flex justify-between items-center"><span className="font-semibold">Total</span><span className="text-2xl font-bold text-farm">{money(total)}</span></div>
             <Field label="Buyer Name"><input className="input" value={f.buyer} onChange={set('buyer')} placeholder="e.g. Soweto Market trader" /></Field>
             <Field label="Payment Method">
               <div className="grid grid-cols-3 gap-2">
-                {PAYMENT_METHODS.map((m) => <button type="button" key={m} onClick={() => setF({ ...f, method: m })} className={clsx('rounded-xl border-2 py-3 text-sm font-semibold', f.method === m ? 'border-farm bg-farm-pale text-farm' : 'border-gray-200')}>{m === 'Cash' ? '💵' : m === 'Mobile Money' ? '📱' : '🏦'} {m}</button>)}
+                {PAYMENT_METHODS.map((m) => <button type="button" key={m} onClick={() => setF({ ...f, method: m })} className={clsx('rounded-xl border-2 py-3 text-sm font-semibold', f.method === m ? 'border-farm bg-farm-pale text-farm' : 'border-gray-200')}>{m === 'Cash' ? '' : m === 'Mobile Money' ? '' : ''} {m}</button>)}
               </div>
             </Field>
           </>
@@ -146,7 +146,7 @@ function TransactionFormInner() {
             <Field label="Paid By"><input className="input" list="payers" value={f.paidBy} onChange={set('paidBy')} /><datalist id="payers">{state.users.map((u) => <option key={u.id} value={u.name} />)}</datalist></Field>
             {stockItems.length > 0 && (
               <div className="rounded-xl border border-dashed border-farm-light p-3 mb-3">
-                <p className="font-semibold text-sm mb-2">📦 Add to stock (optional)</p>
+                <p className="font-semibold text-sm mb-2">Add to stock (optional)</p>
                 <div className="grid grid-cols-3 gap-2">
                   <div className="col-span-2"><Select value={f.inventoryItemId} onChange={set('inventoryItemId')} options={stockItems.map((i) => ({ value: i.id, label: `${i.name} (${i.qty} ${i.unit})` }))} placeholder="Not a stock item" /></div>
                   <input className="input" inputMode="decimal" placeholder="Qty" value={f.inventoryQty} onChange={set('inventoryQty')} disabled={!f.inventoryItemId} />

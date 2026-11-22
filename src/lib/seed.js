@@ -1,7 +1,22 @@
 // Demo data so Zozo can see how everything works on first open.
 // Dates are relative to "today" so the charts always look current.
 import { addDays, hashPassword, today, uid } from './utils'
-import { saveImage } from './db'
+import { saveImage, getImage } from './db'
+import { photo } from './photos'
+
+export const DEMO_PHOTO_SRC = { ph_demo1: photo('farmers'), ph_demo2: photo('fish'), ph_demo3: photo('goats') }
+
+// Older installs saved simple drawings for the demo photos. Swap them for the real photos.
+export async function upgradeDemoPhotos() {
+  let changed = false
+  for (const [id, src] of Object.entries(DEMO_PHOTO_SRC)) {
+    try {
+      const v = await getImage(id)
+      if (typeof v === 'string' && v.startsWith('data:image/svg')) { await saveImage(id, src); changed = true }
+    } catch {}
+  }
+  return changed
+}
 
 export const DATA_VERSION = 1
 
@@ -162,24 +177,18 @@ export async function buildSeed() {
     act(2, 'u_worker', 'John Banda', 'f_a', 'added K1,350.00 Fuel expense to Farm A', 'expense')
   ].sort((a, b) => b.ts.localeCompare(a.ts))
 
-  // Demo photos (simple drawings so the gallery is not empty)
-  const svg = (body, bg) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="${bg}"/>${body}</svg>`)
+  // Demo photos (real photos bundled with the app in public/photos)
   const demoPhotos = [
-    { id: 'ph_demo1', kind: 'problem', farmId: 'f_a', projectId: 'p_mg26', date: d(-4), caption: 'Yellow leaves on young maize, Field 1 lower side', symptoms: ['yellow'],
-      suggestion: '• Yellow leaves: Yellow leaves (especially older, lower leaves) are usually lack of nitrogen. Can also be waterlogging or too little water.\n  ➜ Apply top dressing (Urea or CAN) on moist soil, or add manure. Check drainage. If yellow stripes, it may be maize streak virus.',
-      img: svg('<rect y="220" width="400" height="80" fill="#6D4C41"/><path d="M200 230 C190 160 150 120 90 100 C150 140 175 180 192 230Z" fill="#C0CA33"/><path d="M205 230 C215 150 260 110 320 90 C260 140 230 180 210 230Z" fill="#AFB42B"/><path d="M198 230 C200 150 205 90 200 40 C215 100 212 170 206 230Z" fill="#7CB342"/><text x="20" y="40" font-family="Arial" font-size="22" fill="#333">Field 1 - maize</text>', '#E3F2FD') },
-    { id: 'ph_demo2', kind: 'farm', farmId: 'f_b', projectId: 'p_pond1', date: d(-3), caption: 'Pond 1 at feeding time', symptoms: [], suggestion: '',
-      img: svg('<path d="M0 120 Q200 90 400 120 V300 H0Z" fill="#81C784"/><ellipse cx="200" cy="210" rx="170" ry="60" fill="#4FC3F7"/><text x="150" y="225" font-size="40">🐟</text><text x="220" y="205" font-size="30">🐟</text><circle cx="340" cy="50" r="28" fill="#FFD54F"/>', '#B3E5FC') },
-    { id: 'ph_demo3', kind: 'problem', farmId: 'f_b', projectId: '', date: d(-3), caption: 'Broken fence on east side of the ponds', symptoms: ['fence'],
-      suggestion: '• Broken fence / building: Damaged fences and structures let animals escape and thieves or predators in.\n  ➜ Create a task to repair it, assign a worker and record the cost under Maintenance.',
-      img: svg('<rect y="200" width="400" height="100" fill="#8D6E63"/><g stroke="#5D4037" stroke-width="10"><line x1="40" y1="110" x2="40" y2="230"/><line x1="150" y1="110" x2="150" y2="230"/><line x1="260" y1="140" x2="300" y2="235"/></g><g stroke="#9E9E9E" stroke-width="3"><line x1="40" y1="130" x2="150" y2="130"/><line x1="40" y1="170" x2="150" y2="170"/><path d="M150 130 Q190 200 230 240" fill="none"/></g>', '#C8E6C9') }
+    { id: 'ph_demo1', kind: 'problem', farmId: 'f_a', projectId: 'p_mg26', date: d(-4), caption: 'Checking young maize for fall armyworm, Field 1', symptoms: ['holes'],
+      suggestion: '• Holes in leaves: Holes and chewing damage are caused by caterpillars (e.g. fall armyworm in maize, diamondback moth in cabbage) or beetles.\n  ➜ Scout the field. Spray a suitable insecticide (Emamectin, Lambda-cyhalothrin, or Bt for vegetables) early morning. Rotate chemicals.' },
+    { id: 'ph_demo2', kind: 'project', farmId: 'f_b', projectId: 'p_pond1', date: d(-3), caption: 'Tilapia from Pond 1 at harvest', symptoms: [], suggestion: '' },
+    { id: 'ph_demo3', kind: 'project', farmId: 'f_a', projectId: 'p_mg26', date: d(-2), caption: 'Goats in the night pen', symptoms: [], suggestion: '' }
   ]
   for (const p of demoPhotos) {
-    const { img, ...meta } = p
-    try { await saveImage(p.id, img) } catch {}
-    s.photos.push({ ...meta, createdBy: p.kind === 'farm' ? 'u_mary' : 'u_owner', createdAt: Date.now() })
+    try { await saveImage(p.id, DEMO_PHOTO_SRC[p.id]) } catch {}
+    s.photos.push({ ...p, createdBy: p.kind === 'project' && p.farmId === 'f_b' ? 'u_mary' : 'u_owner', createdAt: Date.now() })
   }
-  s.visits[0].photoIds = ['ph_demo3']
+  s.visits[0].photoIds = ['ph_demo2']
 
   return s
 }

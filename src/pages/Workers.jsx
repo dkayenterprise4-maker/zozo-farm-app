@@ -17,7 +17,7 @@ export default function Workers() {
       <PageHeader title="Workers" subtitle={`${state.users.filter((u) => u.role === 'worker').length} workers`} right={<button className="btn-primary btn-sm" onClick={() => setEdit({})}><Plus size={18} /> Add</button>} />
       <div className="mb-4"><SearchBar value={q} onChange={setQ} placeholder="Search workers..." /></div>
       {workers.length === 0 ? (
-        <Empty icon="👷" title="No workers yet" text="Add workers so they can record expenses, sales, photos and visits from their own phone." action={<button className="btn-primary" onClick={() => setEdit({})}><Plus size={18} /> Add Worker</button>} />
+        <Empty icon="" title="No workers yet" text="Add workers so they can record expenses, sales, photos and visits from their own phone." action={<button className="btn-primary" onClick={() => setEdit({})}><Plus size={18} /> Add Worker</button>} />
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">
           {workers.map((w) => {
